@@ -1,0 +1,49 @@
+name: Plurk
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 每 15 分鐘執行一次
+    - cron: '5,20,35,50 * * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    env:
+      TZ: Asia/Taipei
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run script
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          BOT_TOKEN_WM: ${{ secrets.BOT_TOKEN_WM }}
+        run: python plurk.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          # 檢查 plurk 資料夾下的 txt 檔案是否有變動
+          if [[ -n $(git status -s *.txt) ]]; then
+            git add *.txt
+            git commit -m "[Actions] Auto update"
+            git push
+          else
+            echo "No changes to commit"
+          fi

@@ -217,7 +217,8 @@ def main(user, username, tag, uid, thread_id=0):
         with open(path, "w", encoding="utf-8") as f:
             f.write("")
             old = []
-    for j in reversed(data):
+    # for j in reversed(data):
+    for j in data:
         user_id = j['user_id']
         owner_id = j['owner_id']
         if user_id != uid or owner_id != uid:
